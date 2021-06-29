@@ -3,7 +3,7 @@
   "comment01": "Validate this file with `jq . <filename> after changing by hand.",
   "comment02": "numbers are so comments will show up in jq validation to try to keep as this json flat as possible",
   "comment03": "edit with vi tktvars.json;jq . tktvars.json",
-  "comment04": "IMPORTANT: fields with <field> need to be replaced by real values"
+  "comment04": "IMPORTANT: fields with <field> need to be replaced by real values",
   "ctmvars": {
     "comment10": "The last 3 are not needed if AAPI CLI is used to get the job log, job output and other information",
     "comment11": "in case the AAPI cli changes, or some other program would be used.",
