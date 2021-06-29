@@ -11,7 +11,7 @@
     "comment12": "next is used for the self-service url in the ticket body",
     "ctmweb": "http://<emwebserver>:<webport>",
     "comment13": "next is to keep a placeholder for AAPI via web variables. Use is commented in code.",
-    "comment14": "  if Python is used, import controlm_client (https://github.com/JoeGoldberg/controlm-client)
+    "comment14": "  if Python is used, import controlm_client (https://github.com/JoeGoldberg/controlm-client)",
     "comment15": "  to use the REST calls and the variables below."
     "ctmaapi": "https://<emaapiserver>:<emaapiport>/automation-api",
     "ctmuser": "<someuser>",
