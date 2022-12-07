@@ -1,0 +1,369 @@
+{
+  "DCO_SNow": {
+  "Type":  "Folder",
+  "Variables": [
+    {
+      "fldr_tktfile": "$HOME/nonBMC/scripts/Ctm2SnowIncidents/tktvars.json"
+    }
+  ],
+  "ControlmServer": "psctm",
+  "OrderMethod": "Manual",
+  "ActiveRetentionPolicy": "CleanEndedOK",
+  "SiteStandard": "DCO-SiteStandard",
+  "SubApplication": "DCO_SNowUtils",
+  "CreatedBy": "dcompane1",
+  "Application": "DCO",
+  "When": {
+    "RuleBasedCalendars": {
+      "Included": [
+        "EVERYDAY"
+      ],
+      "EVERYDAY": {
+        "Type": "Calendar:RuleBased",
+        "When": {
+          "DaysRelation": "OR",
+          "WeekDays": [
+            "NONE"
+          ],
+          "MonthDays": [
+            "ALL"
+          ]
+        }
+      }
+    }
+  },
+  "DCO_SNowKeepAlive": {
+    "Type": "Job:Command",
+    "SubApplication": "DCO_SNowUtils",
+    "Host": "vl-aus-ctm-ag01.ctm.bmc.com",
+    "CreatedBy": "dcompane1",
+    "Description": "This job fails to generate tickets and hopefully keep the dev instance running",
+    "RunAs": "ctmagent",
+    "Application": "DCO",
+    "Command": "echo \"%%JOBNAME:%%ODATE:%%ORDERID:%%RUNCOUNT\";exit 20",
+    "Rerun": {
+      "Units": "Hours",
+      "Every": "2"
+    },
+    "When": {
+      "WeekDays": [
+        "NONE"
+      ],
+      "MonthDays": [
+        "ALL"
+      ],
+      "DaysRelation": "OR"
+    }
+  },
+  "DCO_Snow_Add2Log": {
+    "Type": "SubFolder",
+    "SubApplication": "DCO_SNowUtils",
+    "AdjustEvents": false,
+    "CreatedBy": "dcompane1",
+    "Application": "DCO",
+    "When": {
+      "DaysRelation": "OR",
+      "RuleBasedCalendars": {
+        "Included": [
+          "USE PARENT"
+        ]
+      }
+    },
+    "DCO_SNowStartAddTkt2Log": {
+      "Type": "Job:Command",
+      "SubApplication": "DCO_SNowUtils",
+      "Host": "vl-aus-ctm-em01.ctm.bmc.com",
+      "CreatedBy": "dcompane1",
+      "Description": "This job sets the config file to enable shout to IOALOg to capture the INC ID and SYS ID in the CTMLOG",
+      "RunAs": "ctmem",
+      "Application": "DCO",
+      "Command": "jq '.pgmvars.addtkt2log = \"yes\"' %%fldr_tktfile | sponge %%fldr_tktfile",
+      "RerunLimit": {
+        "Units": "Hours",
+        "Every": "0"
+      },
+      "When": {
+        "WeekDays": [
+          "NONE"
+        ],
+        "MonthDays": [
+          "NONE"
+        ],
+        "DaysRelation": "OR"
+      }
+    },
+    "DCO_SNowStopAddTkt2Log": {
+      "Type": "Job:Command",
+      "SubApplication": "DCO_SNowUtils",
+      "Host": "vl-aus-ctm-em01.ctm.bmc.com",
+      "CreatedBy": "dcompane1",
+      "Description": "This job sets the config file to disable shout to IOALOg to capture the INC ID and SYS ID in the CTMLOG",
+      "RunAs": "ctmem",
+      "Application": "DCO",
+      "Command": "jq '.pgmvars.addtkt2log = \"no\"' %%fldr_tktfile | sponge %%fldr_tktfile ; jq '.pgmvars.sndupd2tkt = \"no\"' %%fldr_tktfile | sponge %%fldr_tktfile",
+      "RerunLimit": {
+        "Units": "Hours",
+        "Every": "0"
+      },
+      "When": {
+        "WeekDays": [
+          "NONE"
+        ],
+        "MonthDays": [
+          "NONE"
+        ],
+        "DaysRelation": "OR"
+      }
+    }
+  },
+  "DCO_SnowDebug": {
+    "Type": "SubFolder",
+    "SubApplication": "DCO_SNowUtils",
+    "AdjustEvents": false,
+    "CreatedBy": "dcompane1",
+    "Application": "DCO",
+    "When": {
+      "DaysRelation": "OR",
+      "RuleBasedCalendars": {
+        "Included": [
+          "USE PARENT"
+        ]
+      }
+    },
+    "DCO_SNowStartDbgTkt": {
+      "Type": "Job:Command",
+      "SubApplication": "DCO_SNowUtils",
+      "Host": "vl-aus-ctm-em01.ctm.bmc.com",
+      "CreatedBy": "dcompane1",
+      "Description": "This job sets the config file to stop creating create SNOW tickets",
+      "RunAs": "ctmem",
+      "Application": "DCO",
+      "Command": "jq '.pgmvars.debug = \"yes\"' %%fldr_tktfile | sponge %%fldr_tktfile",
+      "RerunLimit": {
+        "Units": "Hours",
+        "Every": "0"
+      },
+      "When": {
+        "WeekDays": [
+          "NONE"
+        ],
+        "MonthDays": [
+          "NONE"
+        ],
+        "DaysRelation": "OR"
+      }
+    },
+    "DCO_SNowStopDbgTkt": {
+      "Type": "Job:Command",
+      "SubApplication": "DCO_SNowUtils",
+      "Host": "vl-aus-ctm-em01.ctm.bmc.com",
+      "CreatedBy": "dcompane1",
+      "Description": "This job sets the config file to disable debug for the script.",
+      "RunAs": "ctmem",
+      "Application": "DCO",
+      "Command": "jq '.pgmvars.debug = \"no\"' %%fldr_tktfile | sponge %%fldr_tktfile",
+      "Variables": [
+        {
+          "tktfile": "%%fldr_tktfile"
+        }
+      ],
+      "RerunLimit": {
+        "Units": "Hours",
+        "Every": "0"
+      },
+      "When": {
+        "WeekDays": [
+          "NONE"
+        ],
+        "MonthDays": [
+          "NONE"
+        ],
+        "DaysRelation": "OR"
+      }
+    }
+  },
+  "DCO_SnowCrtTkt": {
+    "Type": "SubFolder",
+    "SubApplication": "DCO_SNowUtils",
+    "AdjustEvents": false,
+    "CreatedBy": "dcompane1",
+    "Application": "DCO",
+    "When": {
+      "DaysRelation": "OR",
+      "RuleBasedCalendars": {
+        "Included": [
+          "USE PARENT"
+        ]
+      }
+    },
+    "DCO_SNowStartCrtTkt": {
+      "Type": "Job:Command",
+      "SubApplication": "DCO_SNowUtils",
+      "Host": "vl-aus-ctm-em01.ctm.bmc.com",
+      "CreatedBy": "dcompane1",
+      "Description": "This job sets the config file to start creating create SNOW tickets",
+      "RunAs": "ctmem",
+      "Application": "DCO",
+      "Command": "jq '.pgmvars.crttickets = \"yes\"' %%fldr_tktfile | sponge %%fldr_tktfile",
+      "RerunLimit": {
+        "Units": "Hours",
+        "Every": "0"
+      },
+      "When": {
+        "WeekDays": [
+          "NONE"
+        ],
+        "MonthDays": [
+          "NONE"
+        ],
+        "DaysRelation": "OR"
+      }
+    },
+    "DCO_SNowStopCrtTkt": {
+      "Type": "Job:Command",
+      "SubApplication": "DCO_SNowUtils",
+      "Host": "vl-aus-ctm-em01.ctm.bmc.com",
+      "CreatedBy": "dcompane1",
+      "Description": "This job sets the config file to enable debug for the script. It will be written to the em file gtw.log_<odate>.<v>.log",
+      "RunAs": "ctmem",
+      "Application": "DCO",
+      "Command": "jq '.pgmvars.crttickets = \"no\"' %%fldr_tktfile | sponge %%fldr_tktfile",
+      "RerunLimit": {
+        "Units": "Hours",
+        "Every": "0"
+      },
+      "When": {
+        "WeekDays": [
+          "NONE"
+        ],
+        "MonthDays": [
+          "NONE"
+        ],
+        "DaysRelation": "OR"
+      }
+    }
+  },
+  "DCO_Snow_Add2Tkt": {
+    "Type": "SubFolder",
+    "SubApplication": "DCO_SNowUtils",
+    "AdjustEvents": false,
+    "CreatedBy": "dcompane1",
+    "Application": "DCO",
+    "When": {
+      "DaysRelation": "OR",
+      "RuleBasedCalendars": {
+        "Included": [
+          "USE PARENT"
+        ]
+      }
+    },
+    "DCO_SNowStartAdd2Tkt": {
+      "Type": "Job:Command",
+      "SubApplication": "DCO_SNowUtils",
+      "Host": "vl-aus-ctm-em01.ctm.bmc.com",
+      "CreatedBy": "dcompane1",
+      "Description": "This job sets the config file to enable adding the job output and log to the ticket",
+      "RunAs": "ctmem",
+      "Application": "DCO",
+      "Command": "jq '.pgmvars.ctmattachlogs = \"yes\"' %%fldr_tktfile | sponge %%fldr_tktfile",
+      "RerunLimit": {
+        "Units": "Hours",
+        "Every": "0"
+      },
+      "When": {
+        "WeekDays": [
+          "NONE"
+        ],
+        "MonthDays": [
+          "NONE"
+        ],
+        "DaysRelation": "OR"
+      }
+    },
+    "DCO_SNowStopAdd2Tkt": {
+      "Type": "Job:Command",
+      "SubApplication": "DCO_SNowUtils",
+      "Host": "vl-aus-ctm-em01.ctm.bmc.com",
+      "CreatedBy": "dcompane1",
+      "Description": "This job sets the config file to disable adding the job output and log to the ticket",
+      "RunAs": "ctmem",
+      "Application": "DCO",
+      "Command": "jq '.pgmvars.ctmattachlogs = \"no\"' %%fldr_tktfile | sponge %%fldr_tktfile",
+      "RerunLimit": {
+        "Units": "Hours",
+        "Every": "0"
+      },
+      "When": {
+        "WeekDays": [
+          "NONE"
+        ],
+        "MonthDays": [
+          "NONE"
+        ],
+        "DaysRelation": "OR"
+      }
+    }
+  },
+  "DCO_Snow_SndUpd2Tkt": {
+    "Type": "SubFolder",
+    "SubApplication": "DCO_SNowUtils",
+    "AdjustEvents": false,
+    "CreatedBy": "dcompane1",
+    "Application": "DCO",
+    "When": {
+      "DaysRelation": "OR",
+      "RuleBasedCalendars": {
+        "Included": [
+          "USE PARENT"
+        ]
+      }
+    },
+    "DCO_SNowStartSndUpd2Tkt": {
+      "Type": "Job:Command",
+      "SubApplication": "DCO_SNowUtils",
+      "Host": "vl-aus-ctm-em01.ctm.bmc.com",
+      "CreatedBy": "dcompane1",
+      "Description": "This job sets the config file to enable adding the job output and log to the ticket",
+      "RunAs": "ctmem",
+      "Application": "DCO",
+      "Command": "jq '.pgmvars.sndupd2tkt = \"yes\"' %%fldr_tktfile | sponge %%fldr_tktfile",
+      "RerunLimit": {
+        "Units": "Hours",
+        "Every": "0"
+      },
+      "When": {
+        "WeekDays": [
+          "NONE"
+        ],
+        "MonthDays": [
+          "NONE"
+        ],
+        "DaysRelation": "OR"
+      }
+    },
+    "DCO_SNowStopSndUpd2Tkt": {
+      "Type": "Job:Command",
+      "SubApplication": "DCO_SNowUtils",
+      "Host": "vl-aus-ctm-em01.ctm.bmc.com",
+      "CreatedBy": "dcompane1",
+      "Description": "This job sets the config file to disable adding the job output and log to the ticket",
+      "RunAs": "ctmem",
+      "Application": "DCO",
+      "Command": "jq '.pgmvars.sndupd2tkt = \"no\"' %%fldr_tktfile | sponge %%fldr_tktfile",
+      "RerunLimit": {
+        "Units": "Hours",
+        "Every": "0"
+      },
+      "When": {
+        "WeekDays": [
+          "NONE"
+        ],
+        "MonthDays": [
+          "NONE"
+        ],
+        "DaysRelation": "OR"
+      }
+    }
+  }
+  }
+}
